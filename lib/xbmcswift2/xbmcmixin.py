@@ -17,7 +17,7 @@ from xbmcswift2.request import Request
 
 
 class XBMCMixin(object):
-    '''A mixin to add XBMC helper methods. In order to use this mixin,
+    '''A mixin to add KODI helper methods. In order to use this mixin,
     the child class must implement the following methods and
     properties:
 
@@ -252,7 +252,7 @@ class XBMCMixin(object):
         return _items
 
     def get_view_mode_id(self, view_mode):
-        '''Attempts to return a view_mode_id for a given view_mode
+        '''@deprecated Attempts to return a view_mode_id for a given view_mode
         taking into account the current skin. If not view_mode_id can
         be found, None is returned. 'thumbnail' is currently the only
         suppported view_mode.
@@ -261,7 +261,7 @@ class XBMCMixin(object):
         return None
 
     def set_view_mode(self, view_mode_id):
-        '''Calls XBMC's Container.SetViewMode. Requires an integer
+        '''@deprecated Calls KODI's Container.SetViewMode. Requires an integer
         view_mode_id'''
         log.warning('Changing skin viewmodes is not allowed.')
 
@@ -295,8 +295,8 @@ class XBMCMixin(object):
             log.warning('Empty message for notification dialog')
         if title is None:
             title = self.addon.getAddonInfo('name')
-        xbmc.executebuiltin('XBMC.Notification("%s", "%s", "%s", "%s")' %
-                            (msg, title, delay, image))
+        xbmcgui.Dialog().notification(heading=title, message=msg, time=delay, icon=image)
+
 
     def _listitemify(self, item):
         '''Creates an xbmcswift2.ListItem if the provided value for item is a
@@ -347,7 +347,7 @@ class XBMCMixin(object):
                                   the initial playable item (which calls back
                                   into your addon) doesn't have a trailing
                                   slash in the URL. Otherwise it won't work
-                                  reliably with XBMC's PlayMedia().
+                                  reliably with KODI's PlayMedia().
         :param subtitles: A URL to a remote subtitles file or a local filename
                           for a subtitles file to be played along with the
                           item.
@@ -397,7 +397,7 @@ class XBMCMixin(object):
         return [item]
 
     def add_items(self, items):
-        '''Adds ListItems to the XBMC interface. Each item in the
+        '''Adds ListItems to the KODI interface. Each item in the
         provided list should either be instances of xbmcswift2.ListItem,
         or regular dictionaries that will be passed to
         xbmcswift2.ListItem.from_dict. Returns the list of ListItems.
@@ -408,8 +408,6 @@ class XBMCMixin(object):
                       :class:`xbmcswift2.ListItem`.
         '''
         _items = [self._listitemify(item) for item in items]
-
-        
         tuples = [item.as_tuple() for item in _items]
         xbmcplugin.addDirectoryItems(self.handle, tuples, len(tuples))
 
@@ -438,7 +436,7 @@ class XBMCMixin(object):
 
     def add_sort_method(self, sort_method, label2_mask=None):
         '''A wrapper for `xbmcplugin.addSortMethod()
-        <http://mirrors.xbmc.org/docs/python-docs/xbmcplugin.html#-addSortMethod>`_.
+        <https://codedocs.xyz/xbmc/xbmc/group__python__xbmcplugin.html#ga85b3bff796fd644fb28f87b136025f40>`_.
         You can use ``dir(xbmcswift2.SortMethod)`` to list all available sort
         methods.
 
@@ -452,7 +450,7 @@ class XBMCMixin(object):
                             * ``plugin.add_sort_method('title')``
         :param label2_mask: A mask pattern for label2. See the `XBMC
                             documentation
-                            <http://mirrors.xbmc.org/docs/python-docs/xbmcplugin.html#-addSortMethod>`_
+                            <https://codedocs.xyz/xbmc/xbmc/group__python__xbmcplugin.html#ga85b3bff796fd644fb28f87b136025f40>`_
                             for more information.
         '''
         try:
@@ -469,13 +467,13 @@ class XBMCMixin(object):
 
     def finish(self, items=None, sort_methods=None, succeeded=True,
                update_listing=False, cache_to_disc=True, view_mode=None):
-        '''Adds the provided items to the XBMC interface.
+        '''Adds the provided items to the KODI interface.
 
         :param items: an iterable of items where each item is either a
             dictionary with keys/values suitable for passing to
             :meth:`xbmcswift2.ListItem.from_dict` or an instance of
             :class:`xbmcswift2.ListItem`.
-        :param sort_methods: a list of valid XBMC sort_methods. Each item in
+        :param sort_methods: a list of valid KODI sort_methods. Each item in
                              the list can either be a sort method or a tuple of
                              ``sort_method, label2_mask``. See
                              :meth:`add_sort_method` for
@@ -489,7 +487,7 @@ class XBMCMixin(object):
         :param view_mode: can either be an integer (or parseable integer
             string) corresponding to a view_mode or the name of a type of view.
             Currrently the only view type supported is 'thumbnail'.
-        :returns: a list of all ListItems added to the XBMC interface.
+        :returns: a list of all ListItems added to the KODI interface.
         '''
         # If we have any items, add them. Items are optional here.
         if items:

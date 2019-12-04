@@ -26,7 +26,7 @@ except ImportError:
 
 def xbmc_url(url, **options):
     '''Appends key/val pairs to the end of a URL. Useful for passing arbitrary
-    HTTP headers to XBMC to be used when fetching a media resource, e.g.
+    HTTP headers to KODI to be used when fetching a media resource, e.g.
     cookies.
     '''
     optionstring = urlencode(options)
@@ -36,7 +36,7 @@ def xbmc_url(url, **options):
 
 
 def enum(*args, **kwargs):
-    '''An enum class to mirror XBMC constatns. All args and kwargs.keys are
+    '''An enum class to mirror KODI constatns. All args and kwargs.keys are
     added as atrrs on the returned object.
 
     >>> States = enum('NEW_JERSEY', NY='NEW_YORK')

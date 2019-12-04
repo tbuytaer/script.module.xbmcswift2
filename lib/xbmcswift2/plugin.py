@@ -3,7 +3,7 @@
     -----------------
 
     This module contains the Plugin class. This class handles all of the url
-    routing and interaction with XBMC for a plugin.
+    routing and interaction with KODI for a plugin.
 
     :copyright: (c) 2012 by Jonathan Beluch
     :license: GPLv3, see LICENSE for more details.
@@ -35,14 +35,14 @@ else:
 
 class Plugin(XBMCMixin):
     '''The Plugin objects encapsulates all the properties and methods necessary
-    for running an XBMC plugin. The plugin instance is a central place for
+    for running an KODI plugin. The plugin instance is a central place for
     registering view functions and keeping track of plugin state.
 
     Usually the plugin instance is created in the main addon.py file for the
     plugin. Typical creation looks like this::
 
         from xbmcswift2 import Plugin
-        plugin = Plugin('Hello XBMC')
+        plugin = Plugin('Hello KODI')
 
 
     .. versionchanged:: 0.2
@@ -51,7 +51,7 @@ class Plugin(XBMCMixin):
 
     :param name: The name of the plugin, e.g. 'Academic Earth'.
 
-    :param addon_id: The XBMC addon ID for the plugin, e.g.
+    :param addon_id: The KODI addon ID for the plugin, e.g.
                      'plugin.video.academicearth'. This parameter is now
                      optional and is really only useful for testing purposes.
                      If it is not provided, the correct value will be parsed
@@ -79,6 +79,10 @@ class Plugin(XBMCMixin):
 
         self._addon_id = addon_id or self._addon.getAddonInfo('id')
         self._name = name or self._addon.getAddonInfo('name')
+
+        # Default plugin icon and fanart
+        self.icon = self._addon.getAddonInfo('icon')
+        self.fanart = self._addon.getAddonInfo('fanart')
 
         self._info_type = info_type
         if not self._info_type:
@@ -111,7 +115,7 @@ class Plugin(XBMCMixin):
         if not os.path.isdir(self._storage_path):
             os.makedirs(self._storage_path)
 
-        # If we are runing in CLI, we need to load the strings.xml manually
+        # If we are runing in CLI, we need to load the strings.po manually
         # Since xbmcswift2 currently relies on execution from an addon's root
         # directly, we can rely on cwd for now...
         if xbmcswift2.CLI_MODE:
@@ -121,7 +125,7 @@ class Plugin(XBMCMixin):
             else:
                 addon_dir = os.getcwd()
             strings_fn = os.path.join(addon_dir, 'resources', 'language',
-                                      'English', 'strings.xml')
+                                      'English', 'strings.po')
             utils.load_addon_strings(self._addon, strings_fn)
 
     @property
@@ -132,8 +136,8 @@ class Plugin(XBMCMixin):
     def log(self):
         '''The log instance for the plugin. Returns an instance of the
         stdlib's ``logging.Logger``. This log will print to STDOUT when running
-        in CLI mode and will forward messages to XBMC's log when running in
-        XBMC. Some examples::
+        in CLI mode and will forward messages to KODI's log when running in
+        KODI. Some examples::
 
             plugin.log.debug('Debug message')
             plugin.log.warning('Warning message')
@@ -270,7 +274,7 @@ class Plugin(XBMCMixin):
         self._routes.append(rule)
 
     def url_for(self, endpoint, **items):
-        '''Returns a valid XBMC plugin URL for the given endpoint name.
+        '''Returns a valid KODI plugin URL for the given endpoint name.
         endpoint can be the literal name of a function, or it can
         correspond to the name keyword arguments passed to the route
         decorator.

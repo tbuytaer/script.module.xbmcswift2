@@ -3,7 +3,7 @@
     --------------------
 
     This module contains some helpful constants which ease interaction
-    with XBMC.
+    with KODI.
 
     :copyright: (c) 2012 by Jonathan Beluch
     :license: GPLv3, see LICENSE for more details.
@@ -13,7 +13,7 @@ from xbmcswift2 import xbmcplugin
 
 class SortMethod(object):
     '''Static class to hold all of the available sort methods. The
-    sort methods are dynamically imported from xbmcplugin and added as 
+    sort methods are dynamically imported from xbmcplugin and added as
     attributes on this class. The prefix of 'SORT_METHOD_' is
     automatically stripped.
 
