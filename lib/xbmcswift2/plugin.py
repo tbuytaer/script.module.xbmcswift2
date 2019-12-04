@@ -125,6 +125,9 @@ class Plugin(XBMCMixin):
             else:
                 addon_dir = os.getcwd()
             strings_fn = os.path.join(addon_dir, 'resources', 'language',
+                                      'resource.language.en_gb', 'strings.po')
+            if not os.path.exists(strings_fn):
+                strings_fn = os.path.join(addon_dir, 'resources', 'language',
                                       'English', 'strings.po')
             utils.load_addon_strings(self._addon, strings_fn)
 
