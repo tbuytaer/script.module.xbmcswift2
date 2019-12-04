@@ -84,6 +84,10 @@ class Plugin(XBMCMixin):
         self.icon = self._addon.getAddonInfo('icon')
         self.fanart = self._addon.getAddonInfo('fanart')
 
+        # Profile and addon folder
+        self.addon_data = self._addon.getAddonInfo('profile')
+        self.addon_folder = self._addon.getAddonInfo('path')
+
         self._info_type = info_type
         if not self._info_type:
             types = {
