@@ -6,5 +6,8 @@
   <extension point="xbmc.addon.metadata">
     <platform>all</platform>
     <source>https://github.com/XBMC-Addons/script.module.xbmcswift2</source>
+    <license>GPL-3.0</license>
+    <summary lang="en">xbmcswift2 is a small framework to ease development of KODI addons.</summary>
+    <description lang="en">xbmcswift2 is a small framework to ease development of KODI addons.</description>
   </extension>
 </addon>
