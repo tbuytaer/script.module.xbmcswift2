@@ -6,13 +6,12 @@ import urllib
 from datetime import timedelta
 from functools import wraps
 
-import xbmcswift2
-from xbmcswift2 import xbmc, xbmcaddon, xbmcplugin, xbmcgui
+from xbmcswift2 import xbmc, xbmcaddon, xbmcplugin, xbmcgui, ListItem
 from xbmcswift2.storage import TimedStorage
 from xbmcswift2.logger import log
-from xbmcswift2.constants import VIEW_MODES, SortMethod
-from common import Modes, DEBUG_MODES
-from request import Request
+from xbmcswift2.constants import SortMethod
+from xbmcswift2.common import Modes, DEBUG_MODES, PY3
+from xbmcswift2.request import Request
 
 
 
@@ -158,7 +157,7 @@ class XBMCMixin(object):
         return os.path.join(xbmc.translatePath('special://temp/'), path)
 
     def get_string(self, stringid):
-        '''Returns the localized string from strings.xml for the given
+        '''Returns the localized string from strings.po for the given
         stringid.
         '''
         stringid = int(stringid)
@@ -200,10 +199,12 @@ class XBMCMixin(object):
         #TODO: allow pickling of settings items?
         # TODO: STUB THIS OUT ON CLI
         value = self.addon.getSetting(id=key)
+        if not PY3:
+            if converter is unicode:
+                return value.decode('utf-8')
+
         if converter is str:
             return value
-        elif converter is unicode:
-            return value.decode('utf-8')
         elif converter is bool:
             return value == 'true'
         elif converter is int:
@@ -245,7 +246,7 @@ class XBMCMixin(object):
                                 'playlist type.')
                 # info_type has to be same as the playlist type
                 item['info_type'] = playlist
-                item = xbmcswift2.ListItem.from_dict(**item)
+                item = ListItem.from_dict(**item)
             _items.append(item)
             selected_playlist.add(item.get_path(), item.as_xbmc_listitem())
         return _items
@@ -256,15 +257,13 @@ class XBMCMixin(object):
         be found, None is returned. 'thumbnail' is currently the only
         suppported view_mode.
         '''
-        view_mode_ids = VIEW_MODES.get(view_mode.lower())
-        if view_mode_ids:
-            return view_mode_ids.get(xbmc.getSkinDir())
+        log.warning('Editing skin viewmodes is not allowed.')
         return None
 
     def set_view_mode(self, view_mode_id):
         '''Calls XBMC's Container.SetViewMode. Requires an integer
         view_mode_id'''
-        xbmc.executebuiltin('Container.SetViewMode(%d)' % view_mode_id)
+        log.warning('Changing skin viewmodes is not allowed.')
 
     def keyboard(self, default=None, heading=None, hidden=False):
         '''Displays the keyboard input window to the user. If the user does not
@@ -311,7 +310,7 @@ class XBMCMixin(object):
         if not hasattr(item, 'as_tuple'):
             if 'info_type' not in item.keys():
                 item['info_type'] = info_type
-            item = xbmcswift2.ListItem.from_dict(**item)
+            item = ListItem.from_dict(**item)
         return item
 
     def _add_subtitles(self, subtitles):
@@ -365,8 +364,10 @@ class XBMCMixin(object):
             item = {}
             succeeded = False
 
-        if isinstance(item, basestring):
-            # caller is passing a url instead of an item dict
+        # caller is passing a url instead of an item dict
+        if PY3 and (isinstance(item, bytes) or isinstance(item, str)):
+            item = {'path': item}
+        elif not PY3 and isinstance(item, basestring):
             item = {'path': item}
 
         item = self._listitemify(item)
@@ -407,6 +408,8 @@ class XBMCMixin(object):
                       :class:`xbmcswift2.ListItem`.
         '''
         _items = [self._listitemify(item) for item in items]
+
+        
         tuples = [item.as_tuple() for item in _items]
         xbmcplugin.addDirectoryItems(self.handle, tuples, len(tuples))
 
@@ -493,22 +496,16 @@ class XBMCMixin(object):
             self.add_items(items)
         if sort_methods:
             for sort_method in sort_methods:
-                if not isinstance(sort_method, basestring) and hasattr(sort_method, '__len__'):
-                    self.add_sort_method(*sort_method)
+                if PY3:
+                    if not isinstance(sort_method, str) and hasattr(sort_method, '__len__'):
+                        self.add_sort_method(*sort_method)
+                    else:
+                        self.add_sort_method(sort_method)
                 else:
-                    self.add_sort_method(sort_method)
-
-        # Attempt to set a view_mode if given
-        if view_mode is not None:
-            # First check if we were given an integer or parseable integer
-            try:
-                view_mode_id = int(view_mode)
-            except ValueError:
-                # Attempt to lookup a view mode
-                view_mode_id = self.get_view_mode_id(view_mode)
-
-            if view_mode_id is not None:
-                self.set_view_mode(view_mode_id)
+                    if not isinstance(sort_method, basestring) and hasattr(sort_method, '__len__'):
+                        self.add_sort_method(*sort_method)
+                    else:
+                        self.add_sort_method(sort_method)
 
         # Finalize the directory items
         self.end_of_directory(succeeded, update_listing, cache_to_disc)

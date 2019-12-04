@@ -23,8 +23,6 @@ class ListItem(object):
         kwargs = {
             'label': label,
             'label2': label2,
-            'iconImage': icon,
-            'thumbnailImage': thumbnail,
             'path': path,
         }
         #kwargs = dict((key, val) for key, val in locals().items() if val is
@@ -35,12 +33,14 @@ class ListItem(object):
 
         # xbmc doesn't make getters available for these properties so we'll
         # keep track on our own
-        self._icon = icon
         self._path = path
-        self._thumbnail = thumbnail
         self._context_menu_items = []
         self.is_folder = True
         self._played = False
+        self._art = {'icon': icon, 'thumb': thumbnail}
+
+        # set listitem art
+        self._listitem.setArt({'icon': icon, 'thumb': thumbnail})
 
     def __repr__(self):
         return ("<ListItem '%s'>" % self.label).encode('utf-8')
@@ -114,23 +114,27 @@ class ListItem(object):
 
     def get_icon(self):
         '''Returns the listitem's icon image'''
-        return self._icon
+        return self._art['icon']
 
     def set_icon(self, icon):
         '''Sets the listitem's icon image'''
-        self._icon = icon
-        return self._listitem.setIconImage(icon)
+        self._art['icon'] = icon
+        return self._listitem.setArt(self._art)
 
     icon = property(get_icon, set_icon)
 
     def get_thumbnail(self):
         '''Returns the listitem's thumbnail image'''
-        return self._thumbnail
+        return self._art['thumbnail']
 
     def set_thumbnail(self, thumbnail):
         '''Sets the listitem's thumbnail image'''
-        self._thumbnail = thumbnail
-        return self._listitem.setThumbnailImage(thumbnail)
+        self._art['thumbnail'] = thumbnail
+        return self._listitem.setArt(self._art)
+
+    def set_art(self, art):
+        self._art = art
+        return self._listitem.setArt(self._art)
 
     thumbnail = property(get_thumbnail, set_thumbnail)
 

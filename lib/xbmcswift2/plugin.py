@@ -12,23 +12,25 @@ import os
 import sys
 import pickle
 import xbmcswift2
-from urllib import urlencode
+
 from functools import wraps
 from optparse import OptionParser
-try:
-    from urlparse import parse_qs
-except ImportError:
-    from cgi import parse_qs
 
-from listitem import ListItem
-from logger import log, setup_log
-from common import enum
-from common import clean_dict
-from urls import UrlRule, NotFoundException, AmbiguousUrlException
-from xbmcswift2 import (xbmc, xbmcgui, xbmcplugin, xbmcaddon, Request,)
+from xbmcswift2 import xbmc, xbmcgui, xbmcplugin, xbmcaddon, Request
+from xbmcswift2.listitem import ListItem
+from xbmcswift2.logger import log, setup_log
+from xbmcswift2.common import enum, clean_dict, Modes, DEBUG_MODES, PY3
+from xbmcswift2.urls import UrlRule, NotFoundException, AmbiguousUrlException
+from xbmcswift2.xbmcmixin import XBMCMixin
 
-from xbmcmixin import XBMCMixin
-from common import Modes, DEBUG_MODES
+if PY3:
+    from urllib.parse import urlencode, parse_qs
+else:
+    from urllib import urlencode
+    try:
+        from urlparse import parse_qs
+    except ImportError:
+        from cgi import parse_qs
 
 
 class Plugin(XBMCMixin):
@@ -315,7 +317,7 @@ class Plugin(XBMCMixin):
                     listitems = self.finish(listitems)
 
             return listitems
-        raise NotFoundException, 'No matching view found for %s' % path
+        raise NotFoundException('No matching view found for %s' % path)
 
     def redirect(self, url):
         '''Used when you need to redirect to another view, and you only

@@ -7,8 +7,17 @@
     :copyright: (c) 2012 by Jonathan Beluch
     :license: GPLv3, see LICENSE for more details.
 '''
-import urllib
-import urllib2
+import sys
+
+PY3 = sys.version_info.major >= 3
+
+if PY3:
+    from urllib.parse import urlencode
+    from urllib.request import urlopen
+else:
+    from urllib import urlencode
+    from urllib2 import urlopen
+
 try:
     import cPickle as pickle
 except ImportError:
@@ -20,7 +29,7 @@ def xbmc_url(url, **options):
     HTTP headers to XBMC to be used when fetching a media resource, e.g.
     cookies.
     '''
-    optionstring = urllib.urlencode(options)
+    optionstring = urlencode(options)
     if optionstring:
         return url + '|' + optionstring
     return url
@@ -107,7 +116,7 @@ def unpickle_dict(items):
 def download_page(url, data=None):
     '''Returns the response for the given url. The optional data argument is
     passed directly to urlopen.'''
-    conn = urllib2.urlopen(url, data)
+    conn = urlopen(url, data)
     resp = conn.read()
     conn.close()
     return resp

@@ -66,7 +66,7 @@ from xbmcswift2.storage import TimedStorage
 from xbmcswift2.request import Request
 from xbmcswift2.common import (xbmc_url, enum, clean_dict, pickle_dict,
     unpickle_args, unpickle_dict, download_page, unhex)
-from xbmcswift2.constants import SortMethod, VIEW_MODES
+from xbmcswift2.constants import SortMethod
 from xbmcswift2.listitem import ListItem
 from xbmcswift2.logger import setup_log
 from xbmcswift2.module import Module
