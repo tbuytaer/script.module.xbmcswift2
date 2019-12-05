@@ -9,14 +9,15 @@
     :license: GPLv3, see LICENSE for more details.
 '''
 from xbmcswift2 import xbmcgui
+from xbmcswift2.logger import log
 
 
 class ListItem(object):
     '''A wrapper for the xbmcgui.ListItem class. The class keeps track
     of any set properties that xbmcgui doesn't expose getters for.
     '''
-    def __init__(self, label=None, label2=None, icon=None, thumbnail=None, fanart=None,
-                 path=None):
+    def __init__(self, label=None, label2=None, icon=None, thumbnail=None,
+                 path=None, fanart=None):
         '''Defaults are an emtpy string since xbmcgui.ListItem will not
         accept None.
         '''
@@ -56,13 +57,16 @@ class ListItem(object):
         '''Returns the list of currently set context_menu items.'''
         return self._context_menu_items
 
-    def add_context_menu_items(self, items):
-        '''Adds context menu items. If replace_items is True all
-        previous context menu items will be removed.
+    def add_context_menu_items(self, items, replace_items=False):
+        '''Adds context menu items. replace_items is only kept for
+        legacy reasons, its functionality was removed.
         '''
         for label, action in items:
             assert isinstance(label, basestring)
             assert isinstance(action, basestring)
+
+        if replace_items:
+            log.warning("Replacing context menu items functionality was removed.")
 
         self._context_menu_items.extend(items)
         self._listitem.addContextMenuItems(items)
@@ -190,16 +194,16 @@ class ListItem(object):
         return self._listitem
 
     @classmethod
-    def from_dict(cls, label=None, label2=None, icon=None, thumbnail=None, fanart=None,
+    def from_dict(cls, label=None, label2=None, icon=None, thumbnail=None,
                   path=None, selected=None, info=None, properties=None,
-                  context_menu=None,
-                  is_playable=None, info_type='video', stream_info=None):
+                  context_menu=None, replace_context_menu=False,
+                  is_playable=None, info_type='video', stream_info=None, fanart=None):
         '''A ListItem constructor for setting a lot of properties not
         available in the regular __init__ method. Useful to collect all
         the properties in a dict and then use the **dct to call this
         method.
         '''
-        listitem = cls(label, label2, icon, thumbnail, fanart, path)
+        listitem = cls(label, label2, icon, thumbnail, path, fanart)
 
         if selected is not None:
             listitem.select(selected)
